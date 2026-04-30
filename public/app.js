@@ -26,7 +26,9 @@ createBtn.addEventListener('click', async () => {
     const res = await fetch('/api/rooms', { method: 'POST' });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to create room.');
-    window.location.href = `/r/${data.code}`;
+    const secret = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+      .map(b => b.toString(16).padStart(2, '0')).join('');
+    window.location.href = `/r/${data.code}#${secret}`;
   } catch (err) {
     showErr(err.message);
     createBtn.disabled = false;
@@ -38,9 +40,10 @@ async function joinRoom() {
   saveName();
   let raw = joinInput.value.trim();
 
-  // Handle pasted full URLs like http://localhost:3000/r/ABCD1234
-  const urlMatch = raw.match(/\/r\/([A-Za-z0-9]+)/i);
-  if (urlMatch) raw = urlMatch[1];
+  // Handle pasted full URLs like http://localhost:3000/r/ABCD1234#secret
+  let fragment = '';
+  const urlMatch = raw.match(/\/r\/([A-Za-z0-9]+)(?:#([A-Fa-f0-9]*))?/i);
+  if (urlMatch) { raw = urlMatch[1]; fragment = urlMatch[2] ? '#' + urlMatch[2] : ''; }
 
   const code = raw.toUpperCase();
   if (!code) { showErr('Enter a room code.'); return; }
@@ -57,9 +60,9 @@ async function joinRoom() {
       joinBtn.textContent = 'join';
       return;
     }
-    window.location.href = `/r/${code}`;
+    window.location.href = `/r/${code}${fragment}`;
   } catch {
-    window.location.href = `/r/${code}`;
+    window.location.href = `/r/${code}${fragment}`;
   }
 }
 

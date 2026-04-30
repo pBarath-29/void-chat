@@ -1,6 +1,8 @@
 const code = window.location.pathname.replace('/r/', '').toUpperCase();
 if (!code) { window.location.href = '/'; }
 
+const roomSecret = window.location.hash.slice(1); // never sent to server
+
 // ── E2EE helpers ─────────────────────────────────────────────
 function bufToBase64url(u8) {
   let bin = '';
@@ -56,10 +58,28 @@ function setE2EEBadge(state, fingerprint) {
 function checkBothReady() {
   if (e2ee.selfReady && e2ee.peerReady) {
     clearTimeout(kxTimeout);
-    unlockInput();
-    setE2EEBadge('secured', e2ee.fingerprint);
-    addSystem('secure channel established.', 'ok');
+    showFingerprintModal(e2ee.fingerprint);
   }
+}
+
+function showFingerprintModal(fp) {
+  const gate = document.getElementById('fp-gate');
+  document.getElementById('fp-value').textContent = fp;
+  gate.classList.add('visible');
+
+  document.getElementById('fp-match-btn').onclick = () => {
+    gate.classList.remove('visible');
+    unlockInput();
+    setE2EEBadge('secured', fp);
+    addSystem('secure channel established. fingerprints verified.', 'ok');
+  };
+  document.getElementById('fp-mismatch-btn').onclick = () => {
+    gate.classList.remove('visible');
+    setE2EEBadge('failed');
+    addSystem('fingerprint mismatch — possible interception. do not send messages.', 'error');
+    lockInput();
+    socket.disconnect();
+  };
 }
 
 document.title = `${code} · void`;
@@ -177,14 +197,23 @@ socket.on('key:receive', async ({ publicKey }) => {
   } catch { setE2EEBadge('failed'); return; }
 
   try {
-    e2ee.sharedKey = await crypto.subtle.deriveKey(
+    const rawBits = await crypto.subtle.deriveBits(
       { name: 'ECDH', public: peerKey },
       e2ee.keyPair.privateKey,
+      256
+    );
+    const hkdfBase = await crypto.subtle.importKey('raw', rawBits, 'HKDF', false, ['deriveKey']);
+    e2ee.sharedKey = await crypto.subtle.deriveKey(
+      { name: 'HKDF', hash: 'SHA-256', salt: new Uint8Array(32),
+        info: new TextEncoder().encode(roomSecret) },
+      hkdfBase,
       { name: 'AES-GCM', length: 256 },
       false,
       ['encrypt', 'decrypt']
     );
   } catch { setE2EEBadge('failed'); return; }
+
+  if (!roomSecret) addSystem('warning: room secret missing — use the full shared link for maximum security.', 'warn');
 
   e2ee.fingerprint = await computeFingerprint(peerJWK);
   e2ee.selfReady = true;

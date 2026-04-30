@@ -24,6 +24,14 @@ const createRoomLimiter = rateLimit({
   message: { error: 'Too many rooms from this IP. Try again in an hour.' }
 });
 
+const lookupRoomLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many lookups. Slow down.' }
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/r/:code', (_req, res) => {
@@ -53,7 +61,7 @@ app.post('/api/rooms', createRoomLimiter, (_req, res) => {
   res.json({ code });
 });
 
-app.get('/api/rooms/:code', (req, res) => {
+app.get('/api/rooms/:code', lookupRoomLimiter, (req, res) => {
   const room = rooms.get(req.params.code.toUpperCase());
   if (!room) return res.status(404).json({ error: 'Room not found or expired' });
   const expiresAt = room.startedAt ? room.startedAt + ROOM_TTL : null;
