@@ -25,16 +25,12 @@ async function computeFingerprint(ownJWK, peerJWK) {
 // Derives a 256-bit AES-GCM key from an ECDH key exchange + HKDF.
 // The roomSecret is used as the HKDF info parameter, binding the
 // derived key to this specific room (two rooms can't cross-decrypt).
-// Uses two chained deriveKey calls (ECDH → HKDF base → AES-GCM),
-// compatible with keys generated with ['deriveKey'] usage.
+// Requires privateKey to have 'deriveBits' usage.
 async function deriveSharedKey(privateKey, peerPublicKey, roomSecret) {
-  const hkdfBase = await crypto.subtle.deriveKey(
-    { name: 'ECDH', public: peerPublicKey },
-    privateKey,
-    { name: 'HKDF' },
-    false,
-    ['deriveKey']
+  const rawBits = await crypto.subtle.deriveBits(
+    { name: 'ECDH', public: peerPublicKey }, privateKey, 256
   );
+  const hkdfBase = await crypto.subtle.importKey('raw', rawBits, 'HKDF', false, ['deriveKey']);
   return crypto.subtle.deriveKey(
     { name: 'HKDF', hash: 'SHA-256', salt: new Uint8Array(32),
       info: new TextEncoder().encode(roomSecret) },

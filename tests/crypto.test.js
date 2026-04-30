@@ -28,7 +28,7 @@ describe('bufToBase64url / base64urlToBuf', () => {
 
 describe('E2EE round-trip', () => {
   async function generateKeyPair() {
-    return crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveKey']);
+    return crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveKey', 'deriveBits']);
   }
 
   it('two peers derive the same AES key and can encrypt/decrypt', async () => {

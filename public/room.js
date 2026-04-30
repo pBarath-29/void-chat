@@ -9,7 +9,7 @@ let kxTimeout = null;
 
 async function initE2EE() {
   e2ee.keyPair = await crypto.subtle.generateKey(
-    { name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveKey']
+    { name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveKey', 'deriveBits']
   );
 }
 
