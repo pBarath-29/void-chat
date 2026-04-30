@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>void</title>
+  <meta name="description" content="Temporary chat rooms. No accounts. No logs. Vanishes when you leave.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="landing">
+    <div class="wordmark">void</div>
+
+    <p class="tagline">temporary rooms &nbsp;·&nbsp; no accounts &nbsp;·&nbsp; no logs</p>
+
+    <div class="actions">
+      <input
+        type="text"
+        id="name-input"
+        placeholder="your name (optional)"
+        maxlength="20"
+        autocomplete="off"
+        spellcheck="false"
+      />
+
+      <button class="btn btn-primary" id="create-btn">create room →</button>
+
+      <div class="divider">or</div>
+
+      <div class="join-row">
+        <input
+          type="text"
+          id="join-input"
+          placeholder="enter room code"
+          maxlength="8"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button class="btn" id="join-btn">join</button>
+      </div>
+
+      <p class="err-msg" id="err-msg"></p>
+    </div>
+
+    <div class="meta">
+      <span>vanishes in 24h</span>
+      <span>zero traces</span>
+    </div>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>void</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .e2ee-badge { font-size: 0.72rem; padding: 2px 7px; border-radius: 10px; font-family: monospace; }
+    .e2ee-pending { background: #333; color: #888; }
+    .e2ee-secured { background: #1a2e1a; color: #5fc75f; cursor: help; }
+    .e2ee-failed  { background: #2e1a1a; color: #c75f5f; }
+
+    .name-gate {
+      position: fixed; inset: 0;
+      background: var(--bg, #090909);
+      display: none; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+    .name-gate.visible { display: flex; }
+    .name-gate-box {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 1rem; width: min(320px, 90vw);
+    }
+    .name-gate-wordmark {
+      font-size: 3rem; font-weight: 800; letter-spacing: -0.03em;
+      color: #39d353; margin-bottom: 0.5rem;
+    }
+    .name-gate-label {
+      color: #444; font-size: 0.75rem; letter-spacing: 0.1em;
+      text-transform: uppercase; text-align: center;
+    }
+    .name-gate-label span { color: #39d353; }
+  </style>
+</head>
+<body>
+  <div class="room">
+    <header class="room-header">
+      <div class="room-left">
+        <a href="/" class="back-link">←</a>
+        <span class="room-code" id="room-code"></span>
+        <span class="you-name" id="you-name"></span>
+        <span id="e2ee-badge" class="e2ee-badge e2ee-pending" title="Establishing secure channel...">
+          <span id="e2ee-label">🔓 securing...</span>
+        </span>
+      </div>
+      <div class="room-right">
+        <span class="timer" id="timer">--:--:--</span>
+        <span class="status waiting" id="status">waiting...</span>
+        <button class="copy-btn" id="copy-btn">copy link</button>
+      </div>
+    </header>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="typing-indicator" id="typing-indicator"></div>
+
+    <div class="input-area">
+      <span class="prompt">›</span>
+      <input
+        type="text"
+        id="msg-input"
+        placeholder="type a message..."
+        maxlength="2000"
+        autocomplete="off"
+        spellcheck="false"
+        disabled
+      />
+      <button id="send-btn" disabled>send</button>
+    </div>
+  </div>
+
+  <div class="name-gate" id="name-gate">
+    <div class="name-gate-box">
+      <div class="name-gate-wordmark">void</div>
+      <p class="name-gate-label">joining <span id="gate-room-code"></span></p>
+      <input
+        type="text"
+        id="gate-name"
+        placeholder="your name (optional)"
+        maxlength="20"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button class="btn btn-primary" id="gate-btn">enter room →</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/room.js"></script>
+</body>
+</html>
