@@ -187,10 +187,8 @@ socket.on('key:receive', async ({ publicKey }) => {
   } catch { setE2EEBadge('failed'); return; }
 
   try {
-    e2ee.sharedKey = await deriveSharedKey(e2ee.keyPair.privateKey, peerKey, roomSecret);
+    e2ee.sharedKey = await deriveSharedKey(e2ee.keyPair.privateKey, peerKey, code);
   } catch { setE2EEBadge('failed'); return; }
-
-  if (!roomSecret) addSystem('warning: room secret missing — use the full shared link for maximum security.', 'warn');
 
   const ownJWK = await crypto.subtle.exportKey('jwk', e2ee.keyPair.publicKey);
   e2ee.fingerprint = await computeFingerprint(ownJWK, peerJWK);
