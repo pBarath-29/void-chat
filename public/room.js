@@ -3,20 +3,8 @@ if (!code) { window.location.href = '/'; }
 
 const roomSecret = window.location.hash.slice(1); // never sent to server
 
-// ── E2EE helpers ─────────────────────────────────────────────
-function bufToBase64url(u8) {
-  let bin = '';
-  for (let i = 0; i < u8.length; i += 1024)
-    bin += String.fromCharCode(...u8.subarray(i, i + 1024));
-  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
-function base64urlToBuf(str) {
-  const b64 = str.replace(/-/g, '+').replace(/_/g, '/');
-  return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-}
-
 // ── E2EE state ────────────────────────────────────────────────
-const e2ee = { keyPair: null, sharedKey: null, fingerprint: null, selfReady: false, peerReady: false };
+const e2ee = { keyPair: null, sharedKey: null, fingerprint: null, selfReady: false, peerReady: false, ready: null };
 let kxTimeout = null;
 
 async function initE2EE() {
@@ -30,13 +18,6 @@ async function broadcastPublicKey() {
   socket.emit('key:exchange', { publicKey: JSON.stringify(jwk) });
 }
 
-async function computeFingerprint(peerJWK) {
-  const ownJWK = await crypto.subtle.exportKey('jwk', e2ee.keyPair.publicKey);
-  const parts = [ownJWK.x + ownJWK.y, peerJWK.x + peerJWK.y].sort();
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(parts.join('|')));
-  const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-  return hex.slice(0, 20).match(/.{1,4}/g).join(' ');
-}
 
 function setE2EEBadge(state, fingerprint) {
   const badge = document.getElementById('e2ee-badge');
@@ -95,7 +76,6 @@ const youNameEl       = document.getElementById('you-name');
 
 let mySocketId    = null;
 let typingTimeout = null;
-let peerConnected = false;
 let peerName      = 'voidmous';
 
 let myName    = localStorage.getItem('void_name') || '';
@@ -113,7 +93,7 @@ if (!nameReady) {
   gateEl.classList.add('visible');
   setTimeout(() => gateInput.focus(), 50);
 
-  function submitGate() {
+  const submitGate = () => {
     myName = gateInput.value.trim();
     localStorage.setItem('void_name', myName);
     gateEl.classList.remove('visible');
@@ -135,9 +115,19 @@ socket.on('room:you', ({ name }) => {
 });
 
 socket.on('disconnect', () => {
-  setStatus('disconnected', 'connection lost');
-  addSystem('disconnected from server.', 'error');
+  setStatus('disconnected', 'reconnecting...');
+  addSystem('connection lost — reconnecting...', 'warn');
   lockInput();
+});
+
+socket.on('reconnect', () => {
+  addSystem('reconnected — rejoining room...', 'ok');
+  socket.emit('room:join', { code, name: myName });
+});
+
+socket.on('reconnect_failed', () => {
+  setStatus('disconnected', 'connection lost');
+  addSystem('could not reconnect. please refresh.', 'error');
 });
 
 socket.on('error', ({ message }) => {
@@ -149,10 +139,8 @@ socket.on('error', ({ message }) => {
 socket.on('room:update', ({ users }) => {
   if (users === 1) {
     setStatus('waiting', 'waiting...');
-    peerConnected = false;
   } else if (users === 2) {
     setStatus('connected', 'connected');
-    peerConnected = true;
   }
 });
 
@@ -169,12 +157,11 @@ socket.on('room:peer_joined', async ({ peerName: name, expiresAt }) => {
     }
   }, 10000);
 
-  await initE2EE();
-  await broadcastPublicKey();
+  e2ee.ready = initE2EE().then(broadcastPublicKey);
+  await e2ee.ready;
 });
 
 socket.on('room:peer_left', ({ peerName: name }) => {
-  peerConnected = false;
   e2ee.keyPair = null; e2ee.sharedKey = null; e2ee.fingerprint = null;
   e2ee.selfReady = false; e2ee.peerReady = false;
   clearTimeout(kxTimeout);
@@ -186,6 +173,9 @@ socket.on('room:peer_left', ({ peerName: name }) => {
 });
 
 socket.on('key:receive', async ({ publicKey }) => {
+  // Guard against the peer's key arriving before our own key pair is generated
+  if (e2ee.ready) await e2ee.ready;
+
   let peerJWK;
   try { peerJWK = JSON.parse(publicKey); } catch { setE2EEBadge('failed'); return; }
 
@@ -197,25 +187,13 @@ socket.on('key:receive', async ({ publicKey }) => {
   } catch { setE2EEBadge('failed'); return; }
 
   try {
-    const rawBits = await crypto.subtle.deriveBits(
-      { name: 'ECDH', public: peerKey },
-      e2ee.keyPair.privateKey,
-      256
-    );
-    const hkdfBase = await crypto.subtle.importKey('raw', rawBits, 'HKDF', false, ['deriveKey']);
-    e2ee.sharedKey = await crypto.subtle.deriveKey(
-      { name: 'HKDF', hash: 'SHA-256', salt: new Uint8Array(32),
-        info: new TextEncoder().encode(roomSecret) },
-      hkdfBase,
-      { name: 'AES-GCM', length: 256 },
-      false,
-      ['encrypt', 'decrypt']
-    );
+    e2ee.sharedKey = await deriveSharedKey(e2ee.keyPair.privateKey, peerKey, roomSecret);
   } catch { setE2EEBadge('failed'); return; }
 
   if (!roomSecret) addSystem('warning: room secret missing — use the full shared link for maximum security.', 'warn');
 
-  e2ee.fingerprint = await computeFingerprint(peerJWK);
+  const ownJWK = await crypto.subtle.exportKey('jwk', e2ee.keyPair.publicKey);
+  e2ee.fingerprint = await computeFingerprint(ownJWK, peerJWK);
   e2ee.selfReady = true;
   socket.emit('key:ready');
   checkBothReady();

@@ -1,0 +1,29 @@
+{
+  "env": {
+    "node": true,
+    "es2022": true
+  },
+  "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "ecmaVersion": 2022
+  },
+  "rules": {
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+  },
+  "overrides": [
+    {
+      "files": ["public/**/*.js"],
+      "env": {
+        "browser": true,
+        "node": false
+      },
+      "globals": {
+        "io": "readonly",
+        "bufToBase64url": "readonly",
+        "base64urlToBuf": "readonly",
+        "computeFingerprint": "readonly",
+        "deriveSharedKey": "readonly"
+      }
+    }
+  ]
+}

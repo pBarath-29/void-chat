@@ -1,20 +1,17 @@
+'use strict';
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 const crypto = require('crypto');
+const { genCode, sanitizeName, checkRate, ROOM_TTL, MAX_USERS, MAX_CIPHER_LEN } = require('./lib/rooms');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const rooms = new Map(); // code -> { users: Set<socketId>, timer, createdAt, expired }
-
-const ROOM_TTL = 24 * 60 * 60 * 1000;
-const MAX_USERS = 2;
-const MAX_CIPHER_LEN = 9000;
-const MSG_PER_MIN = 30;
+const rooms = new Map(); // code -> { users: Set<socketId>, timer, createdAt, startedAt }
 
 const createRoomLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -34,13 +31,13 @@ const lookupRoomLimiter = rateLimit({
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok', rooms: rooms.size, uptime: process.uptime() });
+});
+
 app.get('/r/:code', (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'room.html'));
 });
-
-function genCode() {
-  return crypto.randomBytes(4).toString('hex').toUpperCase();
-}
 
 function deleteRoom(code, reason = 'empty') {
   const room = rooms.get(code);
@@ -70,22 +67,6 @@ app.get('/api/rooms/:code', lookupRoomLimiter, (req, res) => {
 
 const msgRates    = new Map(); // socketId -> { count, resetAt }
 const socketNames = new Map(); // socketId -> name
-
-function sanitizeName(raw) {
-  const s = String(raw || '').trim().slice(0, 20);
-  return s || 'voidmous';
-}
-
-function checkRate(socketId) {
-  const now = Date.now();
-  let r = msgRates.get(socketId);
-  if (!r || now > r.resetAt) {
-    r = { count: 0, resetAt: now + 60000 };
-    msgRates.set(socketId, r);
-  }
-  r.count++;
-  return r.count <= MSG_PER_MIN;
-}
 
 io.on('connection', (socket) => {
   let roomCode = null;
@@ -118,7 +99,7 @@ io.on('connection', (socket) => {
       const [peerId] = [...room.users].filter(id => id !== socket.id);
       const peerName = socketNames.get(peerId) || 'voidmous';
 
-      // Start the 24h clock on first connection only — reconnects don't reset it
+      // Start the 24h clock when both users are present — reconnects don't reset it
       if (!room.startedAt) {
         room.startedAt = Date.now();
         clearTimeout(room.timer);
@@ -134,7 +115,7 @@ io.on('connection', (socket) => {
   socket.on('message:send', ({ iv, ciphertext }) => {
     if (!roomCode) return;
 
-    if (!checkRate(socket.id)) {
+    if (!checkRate(socket.id, msgRates)) {
       socket.emit('error', { message: 'Slow down. Rate limit exceeded.' });
       return;
     }
@@ -191,7 +172,9 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`void · http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  server.listen(PORT, () => console.log(`void · http://localhost:${PORT}`));
+}
+
+module.exports = { app, server, io, rooms };
