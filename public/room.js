@@ -1,7 +1,6 @@
 const code = window.location.pathname.replace('/r/', '').toUpperCase();
 if (!code) { window.location.href = '/'; }
 
-const roomSecret = window.location.hash.slice(1); // never sent to server
 
 // ── E2EE state ────────────────────────────────────────────────
 const e2ee = { keyPair: null, sharedKey: null, fingerprint: null, selfReady: false, peerReady: false, ready: null };

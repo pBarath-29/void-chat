@@ -82,6 +82,8 @@ html, body {
   letter-spacing: 0.06em;
   text-transform: lowercase;
   transition: border-color 0.12s, color 0.12s, background 0.12s;
+  touch-action: manipulation; /* removes 300ms tap delay on mobile */
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn:hover:not(:disabled) {
@@ -192,6 +194,7 @@ input::placeholder {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh; /* shrinks when mobile keyboard appears */
   max-width: 760px;
   margin: 0 auto;
 }
@@ -281,6 +284,8 @@ input::placeholder {
   text-transform: lowercase;
   transition: all 0.12s;
   white-space: nowrap;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .copy-btn:hover {
@@ -297,6 +302,7 @@ input::placeholder {
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
+  overscroll-behavior: contain; /* prevent pull-to-refresh triggering in messages */
 }
 
 .messages::-webkit-scrollbar { width: 3px; }
@@ -423,15 +429,53 @@ input::placeholder {
   text-transform: lowercase;
   transition: color 0.12s;
   flex-shrink: 0;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #send-btn:hover { color: var(--accent); }
 #send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-/* ─── UTIL ─────────────────────────────────────────────────── */
+/* ─── MOBILE ───────────────────────────────────────────────── */
 
+/* iOS Safari zoom prevention — any input font-size < 16px triggers zoom */
+@media (max-width: 768px) {
+  input, #msg-input {
+    font-size: 16px;
+  }
+}
+
+/* Room header: hide non-critical elements so it fits on narrow screens */
+@media (max-width: 600px) {
+  .room-header {
+    padding: 0.625rem 1rem;
+    gap: 0.5rem;
+  }
+  .room-left { gap: 0.5rem; }
+  .room-right { gap: 0.5rem; }
+  .you-name  { display: none; }
+  .timer     { display: none; }
+  .copy-btn  { padding: 0.5rem 0.75rem; min-height: 36px; }
+}
+
+/* Timestamps: hover doesn't exist on touch — always show them dimly */
+@media (hover: none) {
+  .timestamp { opacity: 0.45; }
+}
+
+/* Safe area insets for notched phones (iPhone X+, Android cutouts) */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .input-area {
+    padding-bottom: calc(0.875rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Landing + general small-screen tweaks */
 @media (max-width: 480px) {
-  .wordmark { font-size: 4rem; }
-  .meta { flex-direction: column; gap: 0.5rem; align-items: center; }
-  .message { max-width: 88%; }
+  .wordmark  { font-size: 4rem; }
+  .landing   { padding: 1.5rem; gap: 2rem; }
+  .meta      { flex-direction: column; gap: 0.5rem; align-items: center; }
+  .message   { max-width: 88%; }
+  .input-area { padding: 0.75rem 1rem; }
+  .btn       { min-height: 44px; } /* minimum recommended touch target */
 }

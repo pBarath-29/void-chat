@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>void</title>
   <meta name="description" content="Temporary chat rooms. No accounts. No logs. Vanishes when you leave.">
   <link rel="stylesheet" href="/style.css">
@@ -32,9 +32,11 @@
           type="text"
           id="join-input"
           placeholder="enter room code"
-          maxlength="8"
+          maxlength="200"
           autocomplete="off"
           spellcheck="false"
+          autocapitalize="characters"
+          inputmode="text"
         />
         <button class="btn" id="join-btn">join</button>
       </div>
