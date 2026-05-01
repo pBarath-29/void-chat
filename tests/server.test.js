@@ -89,12 +89,18 @@ describe('checkRate', () => {
 
 // ─── HTTP route integration tests ────────────────────────────────────────────
 
+// Node 18: dynamic import of CJS only exposes { default: module.exports }.
+// Node 20: named exports are also extracted. This helper handles both.
+async function importServer() {
+  const mod = await import('../server.js');
+  return mod.app ? mod : mod.default;
+}
+
 describe('POST /api/rooms', () => {
   let app;
 
   beforeAll(async () => {
-    // Fresh import — Vitest isolates modules between test files
-    ({ app } = await import('../server.js'));
+    ({ app } = await importServer());
   });
 
   it('creates a room and returns an 8-char hex code', async () => {
@@ -116,7 +122,7 @@ describe('GET /api/rooms/:code', () => {
   let app;
 
   beforeAll(async () => {
-    ({ app } = await import('../server.js'));
+    ({ app } = await importServer());
   });
 
   it('returns 404 for a non-existent room', async () => {
@@ -146,7 +152,7 @@ describe('GET /health', () => {
   let app;
 
   beforeAll(async () => {
-    ({ app } = await import('../server.js'));
+    ({ app } = await importServer());
   });
 
   it('returns status ok', async () => {

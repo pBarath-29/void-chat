@@ -17,7 +17,10 @@ function nextEvent(socket, event) {
 }
 
 beforeAll(async () => {
-  const { server, io } = await import('../server.js');
+  // Node 18: CJS dynamic import only exposes { default: module.exports }.
+  // Node 20: named exports are also extracted. Handle both.
+  const mod = await import('../server.js');
+  const { server, io } = mod.server ? mod : mod.default;
   serverInstance = server;
   ioInstance = io;
   await new Promise((resolve) => server.listen(0, resolve));
