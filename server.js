@@ -39,6 +39,14 @@ app.get('/r/:code', (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'room.html'));
 });
 
+app.get('/privacy', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'privacy.html'));
+});
+
+app.get('/terms', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'terms.html'));
+});
+
 function deleteRoom(code, reason = 'empty') {
   const room = rooms.get(code);
   if (!room) return;

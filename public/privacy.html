@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>privacy · void</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .policy-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+    .policy-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+    .policy-date {
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+    }
+    .policy-section {
+      margin-bottom: 2rem;
+    }
+    .policy-section h2 {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .policy-section p,
+    .policy-section li {
+      font-size: 0.85rem;
+      color: var(--text);
+      line-height: 1.75;
+      margin-bottom: 0.5rem;
+    }
+    .policy-section ul {
+      list-style: none;
+      padding: 0;
+    }
+    .policy-section li::before {
+      content: '→ ';
+      color: var(--accent);
+    }
+    .policy-section a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .policy-section a:hover {
+      text-decoration: underline;
+    }
+    .policy-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.6;
+      padding: 0.75rem 1rem;
+      border-left: 2px solid var(--border);
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="room-header">
+    <div class="room-left">
+      <a href="/" class="back-link">←</a>
+      <span class="room-code">privacy policy</span>
+    </div>
+  </header>
+
+  <div style="flex:1; overflow-y:auto;">
+    <div class="policy-wrap">
+
+      <div class="policy-title">void</div>
+      <div class="policy-date">privacy policy · effective may 2025</div>
+
+      <div class="policy-section">
+        <h2>the short version</h2>
+        <p>void does not store your messages. ever. the server cannot read them — they are end-to-end encrypted before leaving your browser. when a room closes, nothing remains.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>what we collect</h2>
+        <ul>
+          <li><strong>IP address</strong> — used transiently for rate limiting only (max 10 rooms/hour, 30 messages/minute per user). it is never logged, stored on disk, or shared with anyone.</li>
+          <li><strong>Room join name</strong> — sent to the server once when you join a room so your peer can see who connected. not stored after the room ends.</li>
+        </ul>
+        <div class="policy-note">nothing above is written to a database or file. if the server restarts, all of it vanishes. this is by design.</div>
+      </div>
+
+      <div class="policy-section">
+        <h2>what we do not collect</h2>
+        <ul>
+          <li>message content (encrypted client-side before transmission)</li>
+          <li>account information (there are no accounts)</li>
+          <li>cookies or tracking tokens</li>
+          <li>device fingerprints or browser information</li>
+          <li>analytics or usage telemetry</li>
+          <li>third-party scripts of any kind</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>how encryption works</h2>
+        <p>every message is encrypted in your browser before it reaches our server using:</p>
+        <ul>
+          <li><strong>ECDH P-256</strong> — key exchange between you and your peer</li>
+          <li><strong>HKDF + SHA-256</strong> — derives a unique AES key for your session</li>
+          <li><strong>AES-GCM-256</strong> — authenticated encryption of every message</li>
+        </ul>
+        <p>the server acts as a relay only. it sees encrypted bytes it cannot decrypt. your private keys never leave your browser.</p>
+        <div class="policy-note">verify this yourself: open devtools → network tab → inspect websocket frames. you will see only base64-encoded ciphertext.</div>
+      </div>
+
+      <div class="policy-section">
+        <h2>your name in localstorage</h2>
+        <p>if you enter a name, it is saved in your browser's <code style="color:var(--accent)">localStorage</code> so you don't have to retype it. it stays on your device only. it is cleared when you leave a room. you can clear it anytime by clearing site data in your browser settings.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>data retention</h2>
+        <p>rooms are deleted automatically after 24 hours or when all users leave — whichever comes first. there is no database. no logs. no backups. once a room is gone, nothing can recover it.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>third parties</h2>
+        <p>void uses no third-party analytics, advertising networks, CDNs, or embedded scripts. all assets are served from our own server. we do not sell, share, or monetise any data.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>contact</h2>
+        <p>questions about this policy: <a href="mailto:pbarath29@gmail.com">pbarath29@gmail.com</a></p>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

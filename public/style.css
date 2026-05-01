@@ -181,6 +181,18 @@ input::placeholder {
   color: var(--accent);
 }
 
+.meta-link {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.12s;
+}
+
+.meta-link::before { content: '· '; color: var(--accent); }
+.meta-link:hover { color: var(--text); }
+
 .err-msg {
   min-height: 1.2rem;
   color: var(--error);
