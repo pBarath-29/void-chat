@@ -33,7 +33,7 @@ function initThemePicker(triggerEl) {
     e.stopPropagation();
     if (panel && panel.isConnected) { panel.remove(); return; }
     panel = buildPicker();
-    triggerEl.parentElement.appendChild(panel);
+    document.body.appendChild(panel);
     const current = localStorage.getItem(KEY) || 'void';
     panel.querySelectorAll('.theme-swatch').forEach(el => {
       el.classList.toggle('active', el.dataset.theme === current);

@@ -63,26 +63,29 @@
 /* ─── THEME PICKER ─────────────────────────────────────────── */
 
 .theme-btn {
-  background: transparent;
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 100;
+  background: var(--surface);
   border: 1px solid var(--border);
   color: var(--muted);
   font-family: var(--font);
   font-size: 0.65rem;
-  padding: 0.35rem 0.65rem;
+  padding: 0.45rem 0.8rem;
   cursor: pointer;
   letter-spacing: 0.06em;
   text-transform: lowercase;
   transition: all 0.12s;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  position: relative;
 }
 .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
 
 .theme-panel {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
+  position: fixed;
+  bottom: calc(1.25rem + 2.2rem + 8px);
+  right: 1.25rem;
   background: var(--surface);
   border: 1px solid var(--border);
   padding: 10px;
@@ -558,7 +561,6 @@ input::placeholder {
   .you-name  { display: none; }
   .timer     { display: none; }
   .copy-btn  { padding: 0.5rem 0.75rem; min-height: 36px; }
-  .room-right .theme-btn { display: none; } /* use landing page theme picker on mobile */
 }
 
 /* Timestamps: hover doesn't exist on touch — always show them dimly */
