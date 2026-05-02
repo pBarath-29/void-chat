@@ -44,12 +44,15 @@
       <p class="err-msg" id="err-msg"></p>
     </div>
 
-    <div class="meta">
+    <div class="meta" style="position:relative">
       <a href="/privacy" class="meta-link">privacy</a>
       <a href="/terms" class="meta-link">terms</a>
+      <button id="theme-btn" class="theme-btn">theme</button>
     </div>
   </main>
 
   <script src="/app.js"></script>
+  <script src="/theme.js"></script>
+  <script>window.__initThemePicker(document.getElementById('theme-btn'));</script>
 </body>
 </html>
