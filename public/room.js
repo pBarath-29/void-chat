@@ -240,14 +240,6 @@ function showEmptyState() {
   emptyCode.textContent = code;
   emptyState.style.display = 'flex';
 
-  // Generate QR if available
-  const qrEl = document.getElementById('empty-qr');
-  if (typeof window.generateQRSVG === 'function') {
-    try {
-      qrEl.innerHTML = window.generateQRSVG(window.location.href);
-      qrEl.classList.add('has-qr');
-    } catch (_) { /* skip QR on failure */ }
-  }
 }
 
 function hideEmptyState() {

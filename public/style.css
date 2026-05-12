@@ -654,14 +654,6 @@ input::placeholder {
   max-width: 240px;
 }
 
-.empty-qr {
-  line-height: 0;
-  border: 1px solid var(--border);
-  padding: 10px;
-  display: none;
-}
-.empty-qr.has-qr { display: inline-block; }
-.empty-qr svg { width: 140px; height: 140px; display: block; }
 
 /* ─── TYPING DOTS ──────────────────────────────────────────── */
 
