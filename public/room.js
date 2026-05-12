@@ -488,33 +488,6 @@ socket.on('typing:stop', () => {
   clearTyping();
 });
 
-// ── Reactions ─────────────────────────────────────────────────
-
-socket.on('reaction:receive', async ({ targetId, iv, ciphertext }) => {
-  if (!e2ee.sharedKey) return;
-  let symbol;
-  try {
-    const plain = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv: base64urlToBuf(iv) },
-      e2ee.sharedKey,
-      base64urlToBuf(ciphertext)
-    );
-    symbol = new TextDecoder().decode(plain);
-  } catch { return; }
-
-  const target = document.querySelector(`.message[data-id="${targetId}"]`);
-  if (!target) return;
-  let chips = target.querySelector('.reaction-chips');
-  if (!chips) {
-    chips = document.createElement('div');
-    chips.className = 'reaction-chips';
-    target.appendChild(chips);
-  }
-  const chip = document.createElement('span');
-  chip.className = 'reaction-chip';
-  chip.textContent = symbol;
-  chips.appendChild(chip);
-});
 
 // ── send ─────────────────────────────────────────────────────
 
@@ -559,13 +532,9 @@ inputEl.addEventListener('keydown', (e) => {
 
 // ── DOM helpers ───────────────────────────────────────────────
 
-let msgIdCounter = 0;
-
 function addMessage(text, isSelf, ts) {
-  const id   = 'msg-' + (++msgIdCounter);
   const wrap = document.createElement('div');
   wrap.className = `message ${isSelf ? 'self' : 'other'}`;
-  wrap.dataset.id = id;
 
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
@@ -575,52 +544,10 @@ function addMessage(text, isSelf, ts) {
   time.className = 'timestamp';
   time.textContent = formatTime(ts);
 
-  // Reaction bar
-  const reactionBar = document.createElement('div');
-  reactionBar.className = 'reaction-bar';
-  ['[+]', '[-]', '[!]', '[?]'].forEach(sym => {
-    const btn = document.createElement('button');
-    btn.className = 'reaction-btn';
-    btn.textContent = sym;
-    btn.addEventListener('click', () => sendReaction(id, sym));
-    reactionBar.appendChild(btn);
-  });
-
   wrap.appendChild(bubble);
   wrap.appendChild(time);
-  wrap.appendChild(reactionBar);
   messagesEl.appendChild(wrap);
   scrollBottom();
-}
-
-async function sendReaction(targetId, symbol) {
-  if (!e2ee.sharedKey) return;
-  const encoded = new TextEncoder().encode(symbol);
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  let cipherBuf;
-  try {
-    cipherBuf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, e2ee.sharedKey, encoded);
-  } catch { return; }
-
-  socket.emit('reaction:send', {
-    targetId,
-    iv: bufToBase64url(iv),
-    ciphertext: bufToBase64url(new Uint8Array(cipherBuf))
-  });
-
-  // Show own reaction locally
-  const target = document.querySelector(`.message[data-id="${targetId}"]`);
-  if (!target) return;
-  let chips = target.querySelector('.reaction-chips');
-  if (!chips) {
-    chips = document.createElement('div');
-    chips.className = 'reaction-chips';
-    target.appendChild(chips);
-  }
-  const chip = document.createElement('span');
-  chip.className = 'reaction-chip';
-  chip.textContent = symbol;
-  chips.appendChild(chip);
 }
 
 function addSystem(text, type = '') {

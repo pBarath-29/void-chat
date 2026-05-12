@@ -161,13 +161,6 @@ io.on('connection', (socket) => {
     socket.to(roomCode).emit('typing:stop');
   });
 
-  socket.on('reaction:send', ({ targetId, iv, ciphertext }) => {
-    if (!roomCode) return;
-    if (typeof targetId !== 'string' || targetId.length > 32) return;
-    if (typeof iv !== 'string' || iv.length > 24) return;
-    if (typeof ciphertext !== 'string' || ciphertext.length > 64) return;
-    socket.to(roomCode).emit('reaction:receive', { targetId, iv, ciphertext });
-  });
 
   socket.on('disconnect', () => {
     if (!roomCode) return;

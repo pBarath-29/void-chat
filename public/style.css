@@ -730,51 +730,8 @@ input::placeholder {
 
 @media (max-width: 600px) {
   .sound-btn { display: none; }
+  .theme-btn {
+    bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
 }
 
-/* ─── REACTION BAR ─────────────────────────────────────────── */
-
-.reaction-bar {
-  display: none;
-  gap: 0.3rem;
-  margin-top: 0.3rem;
-  flex-wrap: wrap;
-}
-
-.message:hover .reaction-bar { display: flex; }
-
-@media (hover: none) {
-  .reaction-bar { display: flex; }
-}
-
-.reaction-btn {
-  font-size: 0.6rem;
-  color: var(--muted);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 0.1rem 0.4rem;
-  cursor: pointer;
-  font-family: var(--font);
-  letter-spacing: 0.04em;
-  transition: color 0.12s, border-color 0.12s;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-.reaction-btn:hover { color: var(--accent); border-color: var(--accent); }
-
-.reaction-chips {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  margin-top: 0.2rem;
-}
-
-.reaction-chip {
-  font-size: 0.6rem;
-  color: var(--accent);
-  font-family: var(--font);
-  background: var(--accent-dim);
-  border: 1px solid var(--self-border);
-  padding: 0.05rem 0.35rem;
-  letter-spacing: 0.04em;
-}
