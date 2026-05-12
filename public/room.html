@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>void</title>
+  <link rel="icon" id="favicon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23090909'/><text x='16' y='24' font-size='20' text-anchor='middle' fill='%2339d353' font-family='monospace' font-weight='bold'>v</text></svg>">
   <link rel="stylesheet" href="/style.css">
   <style>
     .e2ee-badge { font-size: 0.72rem; padding: 2px 7px; border-radius: 10px; font-family: monospace; }
@@ -47,23 +48,31 @@
   <div class="room">
     <header class="room-header">
       <div class="room-left">
-        <a href="/" class="back-link">←</a>
+        <a href="/" class="back-link" aria-label="go back to home">←</a>
         <span class="room-code" id="room-code"></span>
         <span class="you-name" id="you-name"></span>
         <span id="e2ee-badge" class="e2ee-badge e2ee-pending" title="Establishing secure channel...">
-          <span id="e2ee-label">🔓 securing...</span>
+          <span id="e2ee-label">[...] securing...</span>
         </span>
       </div>
       <div class="room-right">
+        <button class="sound-btn" id="sound-btn" title="toggle sound notifications">snd:on</button>
         <span class="timer" id="timer">--:--:--</span>
         <span class="status waiting" id="status">waiting...</span>
         <button class="copy-btn" id="copy-btn">copy link</button>
       </div>
     </header>
 
-    <div class="messages" id="messages"></div>
+    <div class="messages" id="messages" role="log" aria-live="polite" aria-label="chat messages">
+      <div class="empty-state" id="empty-state" style="display:none">
+        <div class="empty-code" id="empty-code"></div>
+        <p class="empty-hint">share this code with someone to begin</p>
+        <div class="empty-qr" id="empty-qr"></div>
+        <button class="btn btn-primary empty-copy-btn" id="empty-copy-btn">copy invite link →</button>
+      </div>
+    </div>
 
-    <div class="typing-indicator" id="typing-indicator"></div>
+    <div class="typing-indicator" id="typing-indicator" aria-live="polite"></div>
 
     <div class="input-area">
       <span class="prompt">›</span>
@@ -74,13 +83,25 @@
         maxlength="2000"
         autocomplete="off"
         spellcheck="false"
+        autocorrect="off"
+        autocapitalize="none"
         disabled
       />
+      <span class="char-count" id="char-count"></span>
       <button id="send-btn" disabled>send</button>
     </div>
   </div>
 
-  <div class="name-gate" id="name-gate">
+  <!-- scroll-to-bottom button -->
+  <button class="scroll-btn" id="scroll-btn" aria-label="scroll to latest messages">↓ <span id="scroll-count"></span></button>
+
+  <!-- dead state overlay (replaces forced redirects) -->
+  <div class="dead-state" id="dead-state">
+    <p class="dead-msg" id="dead-msg"></p>
+    <a href="/" class="btn btn-primary dead-home-btn">create new room →</a>
+  </div>
+
+  <div class="name-gate" id="name-gate" role="dialog" aria-modal="true" aria-label="enter your name">
     <div class="name-gate-box">
       <div class="name-gate-wordmark">void</div>
       <p class="name-gate-label">joining <span id="gate-room-code"></span></p>
@@ -91,12 +112,14 @@
         maxlength="20"
         autocomplete="off"
         spellcheck="false"
+        autocorrect="off"
+        autocapitalize="none"
       />
       <button class="btn btn-primary" id="gate-btn">enter room →</button>
     </div>
   </div>
 
-  <div class="fp-gate" id="fp-gate">
+  <div class="fp-gate" id="fp-gate" role="dialog" aria-modal="true" aria-label="verify peer fingerprint">
     <div class="fp-gate-box">
       <div class="name-gate-wordmark">verify peer</div>
       <p class="name-gate-label">fingerprint</p>
@@ -114,6 +137,7 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/theme.js"></script>
   <script src="/crypto.js"></script>
+  <script src="/qr.js"></script>
   <script src="/room.js"></script>
   <script>window.__initThemePicker(document.getElementById('theme-btn'));</script>
 </body>

@@ -559,7 +559,7 @@ input::placeholder {
   .room-left { gap: 0.5rem; }
   .room-right { gap: 0.5rem; }
   .you-name  { display: none; }
-  .timer     { display: none; }
+  .timer     { font-size: 0.6rem; letter-spacing: 0.04em; }
   .copy-btn  { padding: 0.5rem 0.75rem; min-height: 36px; }
 }
 
@@ -583,4 +583,198 @@ input::placeholder {
   .message   { max-width: 88%; }
   .input-area { padding: 0.75rem 1rem; }
   .btn       { min-height: 44px; } /* minimum recommended touch target */
+}
+
+/* ─── CHAR COUNTER ─────────────────────────────────────────── */
+
+.char-count {
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  padding-left: 0.5rem;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  min-width: 4ch;
+  text-align: right;
+  transition: color 0.12s;
+}
+
+/* ─── SCROLL-TO-BOTTOM BUTTON ──────────────────────────────── */
+
+.scroll-btn {
+  position: fixed;
+  bottom: calc(3.75rem + env(safe-area-inset-bottom));
+  right: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: var(--font);
+  font-size: 0.65rem;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  z-index: 10;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.scroll-btn.visible { opacity: 1; pointer-events: auto; }
+
+/* ─── EMPTY STATE (waiting for peer) ──────────────────────── */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  margin: auto;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.empty-code {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  user-select: all;
+  line-height: 1;
+}
+
+.empty-hint {
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.empty-copy-btn {
+  max-width: 240px;
+}
+
+.empty-qr {
+  line-height: 0;
+  border: 1px solid var(--border);
+  padding: 10px;
+  display: none;
+}
+.empty-qr.has-qr { display: inline-block; }
+.empty-qr svg { width: 140px; height: 140px; display: block; }
+
+/* ─── TYPING DOTS ──────────────────────────────────────────── */
+
+.typing-dots span {
+  animation: typing-blink 1.2s infinite;
+  animation-fill-mode: both;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing-blink {
+  0%, 80%, 100% { opacity: 0; }
+  40%           { opacity: 1; }
+}
+
+.typing-name { color: var(--accent); }
+
+/* ─── DEAD STATE OVERLAY ───────────────────────────────────── */
+
+.dead-state {
+  position: fixed;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  background: var(--bg);
+  z-index: 200;
+}
+.dead-state.visible { display: flex; }
+
+.dead-msg {
+  color: var(--error);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-align: center;
+  max-width: 280px;
+  line-height: 1.6;
+}
+
+.dead-home-btn {
+  max-width: 220px;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+}
+
+/* ─── SOUND BUTTON ─────────────────────────────────────────── */
+
+.sound-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  font-family: var(--font);
+  font-size: 0.6rem;
+  padding: 0.2rem 0.45rem;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: color 0.12s, border-color 0.12s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.sound-btn:hover { color: var(--text); border-color: var(--border); }
+.sound-btn.muted { color: var(--muted); opacity: 0.5; }
+
+@media (max-width: 600px) {
+  .sound-btn { display: none; }
+}
+
+/* ─── REACTION BAR ─────────────────────────────────────────── */
+
+.reaction-bar {
+  display: none;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.message:hover .reaction-bar { display: flex; }
+
+@media (hover: none) {
+  .reaction-bar { display: flex; }
+}
+
+.reaction-btn {
+  font-size: 0.6rem;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.1rem 0.4rem;
+  cursor: pointer;
+  font-family: var(--font);
+  letter-spacing: 0.04em;
+  transition: color 0.12s, border-color 0.12s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.reaction-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+.reaction-chips {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.2rem;
+}
+
+.reaction-chip {
+  font-size: 0.6rem;
+  color: var(--accent);
+  font-family: var(--font);
+  background: var(--accent-dim);
+  border: 1px solid var(--self-border);
+  padding: 0.05rem 0.35rem;
+  letter-spacing: 0.04em;
 }
