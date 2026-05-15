@@ -114,9 +114,10 @@ const deadState   = document.getElementById('dead-state');
 const deadMsg     = document.getElementById('dead-msg');
 const soundBtn    = document.getElementById('sound-btn');
 
-let mySocketId    = null;
-let typingTimeout = null;
-let peerName      = 'voidmous';
+let mySocketId      = null;
+let typingTimeout   = null;
+let peerName        = 'voidmous';
+let peerEverJoined  = false;
 let newMsgCount   = 0;
 let audioCtx      = null;
 let soundEnabled  = localStorage.getItem('void_sound') !== 'off';
@@ -367,7 +368,7 @@ socket.on('error', ({ message }) => {
 socket.on('room:update', ({ users }) => {
   if (users === 1) {
     setStatus('waiting', 'waiting...');
-    showEmptyState();
+    if (!peerEverJoined) showEmptyState();
   } else if (users === 2) {
     setStatus('connected', 'connected');
     hideEmptyState();
@@ -376,6 +377,7 @@ socket.on('room:update', ({ users }) => {
 
 socket.on('room:peer_joined', async ({ peerName: name, expiresAt }) => {
   peerName = name;
+  peerEverJoined = true;
   hideEmptyState();
   startTimer(expiresAt);
   addSystem(`${name} joined. establishing secure channel...`, 'ok');
@@ -401,7 +403,6 @@ socket.on('room:peer_left', ({ peerName: name }) => {
   addSystem(`${name} left the room.`, 'warn');
   clearTyping();
   lockInput();
-  showEmptyState();
 });
 
 socket.on('key:receive', async ({ publicKey }) => {
@@ -630,7 +631,7 @@ fetch(`/api/rooms/${code}`)
     if (!data) return;
     if (data.expiresAt) startTimer(data.expiresAt);
     addSystem(`room ${code} · expires in 24h or when empty`);
-    if (data.users < 2) showEmptyState();
+    if (data.users < 2 && !data.expiresAt) showEmptyState();
   })
   .catch(() => {
     addSystem(`room ${code} · expires in 24h or when empty`);
