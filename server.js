@@ -8,6 +8,7 @@ const crypto = require('crypto');
 const { genCode, sanitizeName, checkRate, ROOM_TTL, MAX_USERS, MAX_CIPHER_LEN } = require('./lib/rooms');
 
 const app = express();
+app.set('trust proxy', 1);
 const server = http.createServer(app);
 const io = new Server(server);
 
