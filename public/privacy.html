@@ -92,7 +92,8 @@
       <div class="policy-section">
         <h2>what we collect</h2>
         <ul>
-          <li><strong>IP address</strong> — used transiently for rate limiting only (max 10 rooms/hour, 30 messages/minute per user). it is never logged, stored on disk, or shared with anyone.</li>
+          <li><strong>IP address</strong> — used transiently for room creation rate limiting only (max 10 rooms/hour). it is never logged, stored on disk, or shared with anyone.</li>
+          <li><strong>Socket connection ID</strong> — used transiently to enforce the message rate limit (30 messages/minute). discarded when you disconnect.</li>
           <li><strong>Room join name</strong> — sent to the server once when you join a room so your peer can see who connected. not stored after the room ends.</li>
         </ul>
         <div class="policy-note">nothing above is written to a database or file. if the server restarts, all of it vanishes. this is by design.</div>
