@@ -722,8 +722,5 @@ input::placeholder {
 
 @media (max-width: 600px) {
   .sound-btn { display: none; }
-  .theme-btn {
-    bottom: calc(4rem + env(safe-area-inset-bottom));
-  }
 }
 
