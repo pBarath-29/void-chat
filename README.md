@@ -1,6 +1,6 @@
 # void
 
-![CI](https://github.com/YOUR_USERNAME/void-chat/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/pBarath-29/void-chat/actions/workflows/ci.yml/badge.svg)
 
 Ephemeral anonymous chat rooms with end-to-end encryption. No accounts. No logs. Vanishes when you leave.
 
@@ -10,8 +10,15 @@ Ephemeral anonymous chat rooms with end-to-end encryption. No accounts. No logs.
 - **MITM protection** — fingerprint verification modal blocks man-in-the-middle attacks
 - **Temporary rooms** — auto-delete after 24 hours or when everyone leaves
 - **No login** — share a link, join instantly
-- **Real-time** — typing indicators, live 24h countdown, instant messages
+- **Real-time** — animated typing indicators, live 24h countdown, instant messages
 - **Rate limited** — 10 rooms/hour per IP, 30 messages/minute per user
+- **6 themes** — VOID, LOVE, OCEAN, SUNSET, AURORA, MIDNIGHT (chosen on the home page, persisted via localStorage)
+- **Smart scroll** — shows an unread badge instead of force-jumping when you're reading history
+- **Background tab badge** — favicon shows unread count when the tab is not in focus
+- **Sound notifications** — opt-in Web Audio tone for new messages in background tabs
+- **Input character counter** — appears near the 2000-character limit
+- **Empty state** — displays the room code prominently while waiting for your peer
+- **Keyboard accessibility** — WCAG focus traps on all security-critical modals
 
 ## Setup
 
@@ -25,7 +32,7 @@ npm run lint       # ESLint
 
 ## How it works
 
-1. Open the site and optionally enter your name
+1. Open the site, pick a theme (optional), enter your name (optional)
 2. Click **create room** — a unique 8-character code is generated
 3. Share the full URL (including the `#secret` fragment) with your peer
 4. Both users verify the fingerprint out-of-band
@@ -84,12 +91,15 @@ void-chat/
 │   ├── socket.test.js     # Socket.io integration tests
 │   └── crypto.test.js     # E2EE round-trip + fingerprint tests
 └── public/
-    ├── index.html         # Landing page
+    ├── index.html         # Landing page (theme picker lives here)
     ├── room.html          # Chat room
-    ├── style.css          # Dark terminal UI
+    ├── privacy.html       # Privacy policy
+    ├── terms.html         # Terms of service
+    ├── style.css          # Dark terminal UI, 6 themes
     ├── app.js             # Landing page logic
     ├── crypto.js          # E2EE utilities (bufToBase64url, deriveSharedKey, etc.)
-    └── room.js            # Room logic (socket events, UI)
+    ├── room.js            # Room logic (socket events, UI, notifications)
+    └── theme.js           # Theme application and picker (home page only)
 ```
 
 ## Environment variables
@@ -100,11 +110,11 @@ void-chat/
 
 ## Endpoints
 
-| Method | Path             | Description                        |
-|--------|------------------|------------------------------------|
-| POST   | `/api/rooms`     | Create a room (rate limited)       |
-| GET    | `/api/rooms/:code` | Look up a room (rate limited)    |
-| GET    | `/health`        | Health check (`{ status, rooms, uptime }`) |
+| Method | Path               | Description                                |
+|--------|--------------------|--------------------------------------------|
+| POST   | `/api/rooms`       | Create a room (rate limited)               |
+| GET    | `/api/rooms/:code` | Look up a room (rate limited)              |
+| GET    | `/health`          | Health check (`{ status, rooms, uptime }`) |
 
 ## Deploying
 
